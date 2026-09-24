@@ -196,6 +196,42 @@
   flex-direction: column;
 }
 
+.family-generation {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+}
+
+.primary-branch,
+.union-branch {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  flex-direction: column;
+}
+
+.spouse-families {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 68px;
+  padding-left: 74px;
+}
+
+.spouse-families::before {
+  position: absolute;
+  z-index: 1;
+  top: 47px;
+  right: 61px;
+  left: 0;
+  height: 4px;
+  border-radius: 99px;
+  background: #f29ac2;
+  box-shadow: 0 0 0 3px #fde9f2;
+  content: "";
+}
+
 .couple-row {
   position: relative;
   display: flex;
@@ -261,6 +297,29 @@
 .person-unit.selected .person-portrait {
   box-shadow: 0 0 0 3px var(--red), 0 13px 32px rgba(18, 18, 18, 0.18);
   transform: translateY(-2px);
+}
+
+.person-unit.female .person-portrait {
+  border-color: #f29ac2;
+  box-shadow: 0 0 0 3px #fde9f2, 0 10px 30px rgba(18, 18, 18, 0.17);
+}
+
+.person-unit.female .person-card:hover .person-portrait,
+.person-unit.female.selected .person-portrait {
+  box-shadow: 0 0 0 3px #f29ac2, 0 0 0 7px #fde9f2, 0 13px 32px rgba(18, 18, 18, 0.18);
+}
+
+.parent-choice-field[hidden] {
+  display: none;
+}
+
+.parent-choice-field small {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.45;
+  text-transform: none;
 }
 
 .person-name {

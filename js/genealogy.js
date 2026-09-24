@@ -9,6 +9,7 @@ const defaultGenealogyState = {
       name: "Pessoa inicial",
       notes: "",
       image: "",
+      gender: "male",
     },
   ],
   families: [],
@@ -36,7 +37,11 @@ const genealogyElements = {
   personPhoto: document.getElementById("personPhoto"),
   personPhotoPreview: document.getElementById("personPhotoPreview"),
   personName: document.getElementById("personName"),
+  personGender: document.getElementById("personGender"),
   personNotes: document.getElementById("personNotes"),
+  childFamilyChoice: document.getElementById("childFamilyChoice"),
+  childFamilyChoiceLabel: document.getElementById("childFamilyChoiceLabel"),
+  childFamilySelect: document.getElementById("childFamilySelect"),
   timelineImportOption: document.getElementById("timelineImportOption"),
   importToTimeline: document.getElementById("importToTimeline"),
   closePersonModal: document.getElementById("closePersonModal"),
@@ -60,7 +65,20 @@ function loadGenealogyState() {
       return cloneDefaultGenealogy();
     }
     const rootExists = saved.people.some((person) => person.id === saved.rootId);
-    return rootExists ? saved : cloneDefaultGenealogy();
+    if (!rootExists) return cloneDefaultGenealogy();
+
+    const people = saved.people.map((person) => {
+      if (person.gender === "male" || person.gender === "female") return person;
+      const isPrimary = saved.families.some((family) => family.person1Id === person.id);
+      const isSpouse = saved.families.some((family) => family.person2Id === person.id);
+      const gender = isSpouse && !isPrimary
+        ? "female"
+        : isPrimary || person.id === saved.rootId
+          ? "male"
+          : "";
+      return { ...person, gender };
+    });
+    return { ...saved, people };
   } catch {
     return cloneDefaultGenealogy();
   }
@@ -110,9 +128,17 @@ function getPerson(personId) {
 }
 
 function getFamilyForPerson(personId) {
-  return genealogyState.families.find(
+  return getFamiliesForPerson(personId)[0] || null;
+}
+
+function getFamiliesForPerson(personId) {
+  return genealogyState.families.filter(
     (family) => family.person1Id === personId || family.person2Id === personId,
-  ) || null;
+  );
+}
+
+function getFamilyById(familyId) {
+  return genealogyState.families.find((family) => family.id === familyId) || null;
 }
 
 function getOtherSpouse(family, personId) {
@@ -147,7 +173,7 @@ function pencilIcon() {
 function renderPerson(person) {
   const selected = person.id === selectedPersonId;
   return `
-    <div class="person-unit${selected ? " selected" : ""}" data-person-unit="${escapeHtml(person.id)}">
+    <div class="person-unit${person.gender === "female" ? " female" : ""}${selected ? " selected" : ""}" data-person-unit="${escapeHtml(person.id)}">
       <button
         class="person-card"
         type="button"
@@ -167,39 +193,59 @@ function renderPerson(person) {
   `;
 }
 
+function renderChildren(children, visited) {
+  if (!children.length) return "";
+  return `
+    <div class="family-children">
+      <div class="children-row${children.length === 1 ? " single" : ""}">
+        ${children.map((child) => `<div class="child-branch">${renderFamily(child.id, visited)}</div>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
 function renderFamily(personId, visited = new Set()) {
   if (visited.has(personId)) return "";
   visited.add(personId);
 
   const person = getPerson(personId);
   if (!person) return "";
-  const family = getFamilyForPerson(personId);
-  const spouse = getOtherSpouse(family, personId);
-  const children = family?.childrenIds
-    ?.map((childId) => getPerson(childId))
-    .filter(Boolean) || [];
+  const families = genealogyState.families.filter((family) => family.person1Id === personId);
+  const spouseFamilies = families.filter((family) => getOtherSpouse(family, personId));
+  const soloChildren = families
+    .filter((family) => !getOtherSpouse(family, personId))
+    .flatMap((family) => family.childrenIds || [])
+    .map((childId) => getPerson(childId))
+    .filter(Boolean);
 
-  const spouseMarkup = spouse
-    ? `<span class="marriage-link" aria-hidden="true"></span>${renderPerson(spouse)}`
-    : "";
-
-  const childrenMarkup = children.length
+  const spousesMarkup = spouseFamilies.length
     ? `
-      <div class="family-children">
-        <div class="children-row${children.length === 1 ? " single" : ""}">
-          ${children.map((child) => `<div class="child-branch">${renderFamily(child.id, visited)}</div>`).join("")}
-        </div>
+      <div class="spouse-families${spouseFamilies.length > 1 ? " multiple" : ""}">
+        ${spouseFamilies.map((family) => {
+          const spouse = getOtherSpouse(family, personId);
+          const children = (family.childrenIds || [])
+            .map((childId) => getPerson(childId))
+            .filter(Boolean);
+          return `
+            <div class="union-branch" data-family-id="${escapeHtml(family.id)}">
+              ${renderPerson(spouse)}
+              ${renderChildren(children, visited)}
+            </div>
+          `;
+        }).join("")}
       </div>
     `
     : "";
 
   return `
     <div class="family-tree">
-      <div class="couple-row">
-        ${renderPerson(person)}
-        ${spouseMarkup}
+      <div class="family-generation">
+        <div class="primary-branch">
+          ${renderPerson(person)}
+          ${renderChildren(soloChildren, visited)}
+        </div>
+        ${spousesMarkup}
       </div>
-      ${childrenMarkup}
     </div>
   `;
 }
@@ -234,11 +280,36 @@ function openPersonEditor(personId = "", relation = null) {
   pendingPhoto = person?.image || "";
   genealogyElements.personId.value = person?.id || "";
   genealogyElements.personName.value = person?.name || "";
+  const sourcePerson = relation ? getPerson(relation.sourceId) : null;
+  const defaultGender = relation?.type === "spouse"
+    ? sourcePerson?.gender === "female" ? "male" : "female"
+    : "";
+  genealogyElements.personGender.value = person?.gender || defaultGender;
   genealogyElements.personNotes.value = person?.notes || "";
   genealogyElements.personPhoto.value = "";
   genealogyElements.importToTimeline.checked = false;
   genealogyElements.timelineImportOption.hidden = Boolean(person);
   genealogyElements.deletePerson.hidden = !person;
+
+  const possibleFamilies = relation?.type === "child"
+    ? getFamiliesForPerson(relation.sourceId)
+      .filter((family) => getOtherSpouse(family, relation.sourceId))
+    : [];
+  const needsFamilyChoice = possibleFamilies.length > 1;
+  genealogyElements.childFamilyChoice.hidden = !needsFamilyChoice;
+  genealogyElements.childFamilySelect.required = needsFamilyChoice;
+  genealogyElements.childFamilySelect.innerHTML = needsFamilyChoice
+    ? `<option value="">Selecione</option>${possibleFamilies.map((family) => {
+      const spouse = getOtherSpouse(family, relation.sourceId);
+      return `<option value="${escapeHtml(family.id)}">${escapeHtml(spouse?.name || "Cônjuge")}</option>`;
+    }).join("")}`
+    : "";
+  if (relation?.type === "child") {
+    relation.familyId = possibleFamilies.length === 1 ? possibleFamilies[0].id : "";
+    genealogyElements.childFamilyChoiceLabel.textContent = sourcePerson?.gender === "male"
+      ? "Quem é a mãe?"
+      : "Quem é o outro responsável?";
+  }
 
   const relationLabels = {
     spouse: ["Novo vínculo", "Adicionar cônjuge"],
@@ -256,6 +327,7 @@ function openPersonEditor(personId = "", relation = null) {
 
 function closePersonEditor() {
   genealogyElements.personModal.hidden = true;
+  genealogyElements.childFamilySelect.required = false;
   pendingRelation = null;
   pendingPhoto = "";
 }
@@ -264,9 +336,14 @@ function attachNewPerson(person, relation) {
   genealogyState.people.push(person);
   if (!relation) return;
 
-  let family = getFamilyForPerson(relation.sourceId);
+  let family = relation.familyId ? getFamilyById(relation.familyId) : null;
   if (relation.type === "spouse") {
-    if (!family) {
+    const soloFamily = getFamiliesForPerson(relation.sourceId)
+      .find((item) => !getOtherSpouse(item, relation.sourceId));
+    if (soloFamily) {
+      if (soloFamily.person1Id === relation.sourceId) soloFamily.person2Id = person.id;
+      else soloFamily.person1Id = person.id;
+    } else {
       family = {
         id: makeId("family"),
         person1Id: relation.sourceId,
@@ -274,14 +351,15 @@ function attachNewPerson(person, relation) {
         childrenIds: [],
       };
       genealogyState.families.push(family);
-    } else if (!family.person2Id && family.person1Id === relation.sourceId) {
-      family.person2Id = person.id;
-    } else if (!family.person1Id && family.person2Id === relation.sourceId) {
-      family.person1Id = person.id;
     }
   }
 
   if (relation.type === "child") {
+    if (!family) {
+      const families = getFamiliesForPerson(relation.sourceId);
+      family = families.find((item) => !getOtherSpouse(item, relation.sourceId))
+        || (families.length === 1 ? families[0] : null);
+    }
     if (!family) {
       family = {
         id: makeId("family"),
@@ -299,10 +377,11 @@ function collectGenealogyBranch(personId, collected = new Set()) {
   if (!getPerson(personId) || collected.has(personId)) return collected;
   collected.add(personId);
 
-  const family = genealogyState.families.find((item) => item.person1Id === personId);
-  if (!family) return collected;
-  if (family.person2Id) collected.add(family.person2Id);
-  (family.childrenIds || []).forEach((childId) => collectGenealogyBranch(childId, collected));
+  const families = genealogyState.families.filter((item) => item.person1Id === personId);
+  families.forEach((family) => {
+    if (family.person2Id) collected.add(family.person2Id);
+    (family.childrenIds || []).forEach((childId) => collectGenealogyBranch(childId, collected));
+  });
   return collected;
 }
 
@@ -310,7 +389,8 @@ function deleteGenealogyPerson(personId) {
   const person = getPerson(personId);
   if (!person) return;
 
-  const isSpouse = genealogyState.families.some(
+  const ownsFamily = genealogyState.families.some((family) => family.person1Id === personId);
+  const isSpouse = !ownsFamily && genealogyState.families.some(
     (family) => family.person2Id === personId && family.person1Id !== personId,
   );
   const removedIds = isSpouse
@@ -399,10 +479,6 @@ genealogyElements.treeBoard.addEventListener("click", (event) => {
       openPersonEditor(personId);
       return;
     }
-    if (action === "spouse" && getOtherSpouse(getFamilyForPerson(personId), personId)) {
-      showGenealogyToast("Esta pessoa já possui um cônjuge nesta árvore.");
-      return;
-    }
     openPersonEditor("", { type: action, sourceId: personId });
     return;
   }
@@ -434,7 +510,18 @@ genealogyElements.personName.addEventListener("input", () => {
 genealogyElements.personForm.addEventListener("submit", (event) => {
   event.preventDefault();
   const name = genealogyElements.personName.value.trim();
-  if (!name) return;
+  const gender = genealogyElements.personGender.value;
+  if (!name || !gender) return;
+
+  if (pendingRelation?.type === "child" && !genealogyElements.childFamilyChoice.hidden) {
+    const familyId = genealogyElements.childFamilySelect.value;
+    if (!familyId) {
+      showGenealogyToast("Escolha quem é a mãe deste filho.");
+      genealogyElements.childFamilySelect.focus();
+      return;
+    }
+    pendingRelation.familyId = familyId;
+  }
 
   const personId = genealogyElements.personId.value;
   const shouldImportToTimeline = !personId && genealogyElements.importToTimeline.checked;
@@ -443,6 +530,7 @@ genealogyElements.personForm.addEventListener("submit", (event) => {
     const person = getPerson(personId);
     if (!person) return;
     person.name = name;
+    person.gender = gender;
     person.notes = genealogyElements.personNotes.value.trim();
     person.image = pendingPhoto;
     feedbackMessage = "Pessoa atualizada.";
@@ -450,6 +538,7 @@ genealogyElements.personForm.addEventListener("submit", (event) => {
     const person = {
       id: makeId("person"),
       name,
+      gender,
       notes: genealogyElements.personNotes.value.trim(),
       image: pendingPhoto,
     };

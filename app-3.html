@@ -102,6 +102,21 @@
           </label>
 
           <label class="field-label">
+            <span>Sexo</span>
+            <select class="select-field" id="personGender" required>
+              <option value="">Selecione</option>
+              <option value="male">Homem</option>
+              <option value="female">Mulher</option>
+            </select>
+          </label>
+
+          <label class="field-label parent-choice-field" id="childFamilyChoice" hidden>
+            <span id="childFamilyChoiceLabel">Quem é a mãe?</span>
+            <select class="select-field" id="childFamilySelect"></select>
+            <small>O filho será posicionado abaixo da pessoa escolhida.</small>
+          </label>
+
+          <label class="field-label">
             <span>Observação</span>
             <textarea class="textarea-field" id="personNotes" maxlength="600" placeholder="Escreva informações, referências ou detalhes importantes..."></textarea>
           </label>
