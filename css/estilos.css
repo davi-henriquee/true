@@ -85,17 +85,6 @@
   transform: rotate(8deg);
 }
 
-.hero-cross {
-  position: absolute;
-  z-index: 4;
-  right: 6%;
-  top: 13%;
-  color: #fff;
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 5.2rem;
-  text-shadow: 0 8px 30px rgba(18, 18, 18, 0.18);
-}
-
 .apps-section {
   padding: clamp(72px, 9vw, 128px) clamp(20px, 4vw, 56px);
   background: var(--surface);
@@ -545,10 +534,6 @@
   .floating-icon {
     width: 82px;
     border-width: 4px;
-  }
-
-  .hero-cross {
-    font-size: 3.8rem;
   }
 
   .apps-section {
