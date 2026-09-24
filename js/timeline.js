@@ -35,6 +35,7 @@ const timelineElements = {
   clearColor: document.getElementById("clearTimelineColor"),
   closePerson: document.getElementById("closeTimelinePerson"),
   cancelPerson: document.getElementById("cancelTimelinePerson"),
+  deletePerson: document.getElementById("deleteTimelinePerson"),
   groupModal: document.getElementById("timelineGroupModal"),
   groupModalTitle: document.getElementById("timelineGroupTitle"),
   groupForm: document.getElementById("timelineGroupForm"),
@@ -319,6 +320,7 @@ function openTimelinePersonModal(personId = "") {
   timelineElements.colorHex.value = person?.color || "";
   timelineElements.colorPicker.value = normalizedColor(person?.color || defaultTimelineColor).toLowerCase();
   timelineElements.personPhoto.value = "";
+  timelineElements.deletePerson.hidden = !person;
   renderGroupOptions(person?.groupId || "");
   setTimelinePhotoPreview(timelinePendingPhoto, person?.name || "Pessoa");
   timelineElements.personModalTitle.textContent = person ? "Editar pessoa" : "Adicionar pessoa";
@@ -329,6 +331,22 @@ function openTimelinePersonModal(personId = "") {
 function closeTimelinePersonModal() {
   timelineElements.personModal.hidden = true;
   timelinePendingPhoto = "";
+}
+
+function deleteTimelinePerson(personId) {
+  const person = getTimelinePerson(personId);
+  if (!person) return;
+  if (!window.confirm(`Excluir ${person.name} da linha do tempo? Esta ação não pode ser desfeita.`)) {
+    return;
+  }
+
+  timelineState.people = timelineState.people.filter((item) => item.id !== personId);
+  timelineState.selectedIds = timelineState.selectedIds.filter((id) => id !== personId);
+  saveTimelineState();
+  closeTimelinePersonModal();
+  renderTimelineDirectory();
+  renderTimeline();
+  showTimelineToast("Pessoa removida da linha do tempo.");
 }
 
 function openTimelineGroupModal(groupId = "") {
@@ -589,6 +607,9 @@ timelineElements.groupForm.addEventListener("submit", (event) => {
 
 timelineElements.closePerson.addEventListener("click", closeTimelinePersonModal);
 timelineElements.cancelPerson.addEventListener("click", closeTimelinePersonModal);
+timelineElements.deletePerson.addEventListener("click", () => {
+  deleteTimelinePerson(timelineElements.personId.value);
+});
 timelineElements.closeGroup.addEventListener("click", closeTimelineGroupModal);
 timelineElements.cancelGroup.addEventListener("click", closeTimelineGroupModal);
 timelineElements.personModal.addEventListener("click", (event) => {

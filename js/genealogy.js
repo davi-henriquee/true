@@ -41,6 +41,7 @@ const genealogyElements = {
   importToTimeline: document.getElementById("importToTimeline"),
   closePersonModal: document.getElementById("closePersonModal"),
   cancelPersonEdit: document.getElementById("cancelPersonEdit"),
+  deletePerson: document.getElementById("deleteGenealogyPerson"),
   resetTreeButton: document.getElementById("resetTreeButton"),
   resetTreeModal: document.getElementById("resetTreeModal"),
   cancelResetTree: document.getElementById("cancelResetTree"),
@@ -237,6 +238,7 @@ function openPersonEditor(personId = "", relation = null) {
   genealogyElements.personPhoto.value = "";
   genealogyElements.importToTimeline.checked = false;
   genealogyElements.timelineImportOption.hidden = Boolean(person);
+  genealogyElements.deletePerson.hidden = !person;
 
   const relationLabels = {
     spouse: ["Novo vínculo", "Adicionar cônjuge"],
@@ -291,6 +293,56 @@ function attachNewPerson(person, relation) {
     }
     family.childrenIds.push(person.id);
   }
+}
+
+function collectGenealogyBranch(personId, collected = new Set()) {
+  if (!getPerson(personId) || collected.has(personId)) return collected;
+  collected.add(personId);
+
+  const family = genealogyState.families.find((item) => item.person1Id === personId);
+  if (!family) return collected;
+  if (family.person2Id) collected.add(family.person2Id);
+  (family.childrenIds || []).forEach((childId) => collectGenealogyBranch(childId, collected));
+  return collected;
+}
+
+function deleteGenealogyPerson(personId) {
+  const person = getPerson(personId);
+  if (!person) return;
+
+  const isSpouse = genealogyState.families.some(
+    (family) => family.person2Id === personId && family.person1Id !== personId,
+  );
+  const removedIds = isSpouse
+    ? new Set([personId])
+    : collectGenealogyBranch(personId);
+  const relatedCount = removedIds.size - 1;
+  const confirmation = relatedCount > 0
+    ? `Excluir ${person.name} e mais ${relatedCount} ${relatedCount === 1 ? "pessoa vinculada" : "pessoas vinculadas"} deste ramo? Esta ação não pode ser desfeita.`
+    : `Excluir ${person.name} da árvore? Esta ação não pode ser desfeita.`;
+  if (!window.confirm(confirmation)) return;
+
+  genealogyState.people = genealogyState.people.filter((item) => !removedIds.has(item.id));
+  genealogyState.families = genealogyState.families
+    .map((family) => ({
+      ...family,
+      person1Id: removedIds.has(family.person1Id) ? null : family.person1Id,
+      person2Id: removedIds.has(family.person2Id) ? null : family.person2Id,
+      childrenIds: (family.childrenIds || []).filter((childId) => !removedIds.has(childId)),
+    }))
+    .filter((family) => family.person1Id || family.person2Id || family.childrenIds.length);
+
+  if (!genealogyState.people.length) {
+    genealogyState = cloneDefaultGenealogy();
+  } else if (!getPerson(genealogyState.rootId)) {
+    genealogyState.rootId = genealogyState.people[0].id;
+  }
+
+  selectedPersonId = null;
+  saveGenealogyState();
+  closePersonEditor();
+  renderGenealogy();
+  showGenealogyToast(relatedCount > 0 ? "Ramo removido da árvore." : "Pessoa removida da árvore.");
 }
 
 async function imageFileToDataUrl(file) {
@@ -426,6 +478,9 @@ genealogyElements.zoomReset.addEventListener("click", () => {
 
 genealogyElements.closePersonModal.addEventListener("click", closePersonEditor);
 genealogyElements.cancelPersonEdit.addEventListener("click", closePersonEditor);
+genealogyElements.deletePerson.addEventListener("click", () => {
+  deleteGenealogyPerson(genealogyElements.personId.value);
+});
 genealogyElements.personModal.addEventListener("click", (event) => {
   if (event.target === genealogyElements.personModal) closePersonEditor();
 });

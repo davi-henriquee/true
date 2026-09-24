@@ -144,6 +144,7 @@ img {
 .pill-button,
 .primary-button,
 .secondary-button,
+.danger-button,
 .icon-button {
   border: 0;
   cursor: pointer;
@@ -152,7 +153,8 @@ img {
 
 .pill-button,
 .primary-button,
-.secondary-button {
+.secondary-button,
+.danger-button {
   min-height: 42px;
   display: inline-flex;
   align-items: center;
@@ -185,6 +187,24 @@ img {
 .primary-button:hover {
   background: var(--red-dark);
   transform: translateY(-1px);
+}
+
+.danger-button {
+  margin-right: auto;
+  border: 1px solid #f3b8bd;
+  color: #a61b27;
+  background: #fff1f2;
+}
+
+.danger-button:hover {
+  border-color: #e78b94;
+  color: #80131c;
+  background: #ffe3e6;
+  transform: translateY(-1px);
+}
+
+.danger-button[hidden] {
+  display: none;
 }
 
 .icon-button {
