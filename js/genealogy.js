@@ -1,5 +1,7 @@
 const genealogyStorageKey = "study-of-truth-genealogy-v1";
 const genealogyTimelineStorageKey = "study-of-truth-timeline-v1";
+const enoquePhotoMigrationKey = "study-of-truth-remove-enoque-photo-v1";
+const enoquePersonId = "person-1790280571489-2fg6btj";
 
 const defaultGenealogyState = {
   rootId: "root-person",
@@ -67,18 +69,31 @@ function loadGenealogyState() {
     const rootExists = saved.people.some((person) => person.id === saved.rootId);
     if (!rootExists) return cloneDefaultGenealogy();
 
+    const shouldRemoveEnoquePhoto = localStorage.getItem(enoquePhotoMigrationKey) !== "done";
+    let enoqueFound = false;
     const people = saved.people.map((person) => {
-      if (person.gender === "male" || person.gender === "female") return person;
       const isPrimary = saved.families.some((family) => family.person1Id === person.id);
       const isSpouse = saved.families.some((family) => family.person2Id === person.id);
-      const gender = isSpouse && !isPrimary
-        ? "female"
-        : isPrimary || person.id === saved.rootId
-          ? "male"
-          : "";
-      return { ...person, gender };
+      const gender = person.gender === "male" || person.gender === "female"
+        ? person.gender
+        : isSpouse && !isPrimary
+          ? "female"
+          : isPrimary || person.id === saved.rootId
+            ? "male"
+            : "";
+      if (person.id === enoquePersonId) enoqueFound = true;
+      return {
+        ...person,
+        gender,
+        image: shouldRemoveEnoquePhoto && person.id === enoquePersonId ? "" : person.image,
+      };
     });
-    return { ...saved, people };
+    const normalizedState = { ...saved, people };
+    if (shouldRemoveEnoquePhoto && enoqueFound) {
+      localStorage.setItem(genealogyStorageKey, JSON.stringify(normalizedState));
+      localStorage.setItem(enoquePhotoMigrationKey, "done");
+    }
+    return normalizedState;
   } catch {
     return cloneDefaultGenealogy();
   }
@@ -250,9 +265,57 @@ function renderFamily(personId, visited = new Set()) {
   `;
 }
 
+function elementCenterWithin(element, ancestor) {
+  if (!element || !ancestor) return null;
+  let center = element.offsetWidth / 2;
+  let current = element;
+  while (current && current !== ancestor) {
+    center += current.offsetLeft;
+    current = current.offsetParent;
+  }
+  return current === ancestor ? center : null;
+}
+
+function immediateBranchPerson(branch) {
+  return branch?.querySelector(
+    ":scope > .family-tree > .family-generation > .primary-branch > .person-unit",
+  ) || null;
+}
+
+function positionTreeConnectors() {
+  genealogyElements.treeBoard.querySelectorAll(".spouse-families").forEach((container) => {
+    const unions = [...container.querySelectorAll(":scope > .union-branch")];
+    const lastSpouse = unions.at(-1)?.querySelector(":scope > .person-unit");
+    const lineEnd = elementCenterWithin(lastSpouse, container);
+    if (lineEnd !== null) {
+      container.style.setProperty("--marriage-line-end", `${lineEnd}px`);
+    }
+  });
+
+  genealogyElements.treeBoard.querySelectorAll(".children-row").forEach((row) => {
+    const branches = [...row.children].filter((child) => child.classList.contains("child-branch"));
+    branches.forEach((branch) => {
+      const person = immediateBranchPerson(branch);
+      const connectorX = elementCenterWithin(person, branch);
+      if (connectorX !== null) {
+        branch.style.setProperty("--child-connector-x", `${connectorX}px`);
+      }
+    });
+
+    if (branches.length < 2) return;
+    const firstCenter = elementCenterWithin(immediateBranchPerson(branches[0]), row);
+    const lastCenter = elementCenterWithin(immediateBranchPerson(branches.at(-1)), row);
+    if (firstCenter === null || lastCenter === null) return;
+    row.style.setProperty("--children-line-left", `${firstCenter}px`);
+    row.style.setProperty("--children-line-right", `${Math.max(0, row.offsetWidth - lastCenter)}px`);
+  });
+}
+
 function renderGenealogy() {
   genealogyElements.personCount.textContent = String(genealogyState.people.length);
   genealogyElements.treeBoard.innerHTML = renderFamily(genealogyState.rootId);
+  positionTreeConnectors();
+  window.requestAnimationFrame(positionTreeConnectors);
   applyTreeZoom();
 }
 

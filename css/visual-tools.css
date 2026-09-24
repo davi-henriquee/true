@@ -223,8 +223,9 @@
   position: absolute;
   z-index: 1;
   top: 47px;
-  right: 61px;
+  right: auto;
   left: 0;
+  width: var(--marriage-line-end, calc(100% - 61px));
   height: 4px;
   border-radius: 99px;
   background: #f29ac2;
@@ -413,8 +414,8 @@
 .children-row:not(.single)::before {
   position: absolute;
   top: 0;
-  right: 61px;
-  left: 61px;
+  right: var(--children-line-right, 61px);
+  left: var(--children-line-left, 61px);
   height: 2px;
   background: #555050;
   content: "";
@@ -428,7 +429,7 @@
 .child-branch::before {
   position: absolute;
   top: 0;
-  left: 50%;
+  left: var(--child-connector-x, 50%);
   width: 2px;
   height: 34px;
   background: #555050;
