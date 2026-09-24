@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta
+      name="description"
+      content="Organize seus estudos bíblicos por livro, capítulo e tipo de marcação."
+    />
+    <link rel="icon" type="image/png" sizes="any" href="imagens/favicon.png" />
+    <link rel="stylesheet" href="css/platform.css" />
+    <link rel="stylesheet" href="css/study.css" />
+    <title>study of truth</title>
+  </head>
+  <body>
+    <header class="site-header study-header">
+      <a class="site-brand" href="index.html" aria-label="Voltar para a página inicial">
+        <img src="imagens/icon.png" alt="" />
+        <span>STUDY OF TRUTH</span>
+      </a>
+
+      <nav class="site-nav" aria-label="Aplicativos">
+        <a href="index.html">Início</a>
+        <a href="app-1.html">Leitura</a>
+        <a class="active" href="app-2.html">Bíblia</a>
+        <a href="app-3.html">Árvore</a>
+        <a href="app-4.html">Linha do tempo</a>
+      </nav>
+
+      <div class="site-actions">
+        <div class="current-location hide-mobile" aria-live="polite">
+          <strong id="topBookName">Gênesis</strong>
+          <span>•</span>
+          <span id="topChapterCount">50 capítulos</span>
+        </div>
+        <button
+          class="icon-button mobile-menu-button"
+          id="mobileMenuButton"
+          type="button"
+          aria-label="Abrir menu de livros"
+          aria-controls="bookSidebar"
+          aria-expanded="false"
+        >
+          <span></span><span></span><span></span>
+        </button>
+        <a class="icon-button home-link" href="index.html" aria-label="Início">⌂</a>
+      </div>
+    </header>
+
+    <div class="announcement-strip study-strip">
+      <span class="announcement-mark" aria-hidden="true">✦</span>
+      Selecione um livro, escolha o capítulo e registre o que encontrou.
+    </div>
+
+    <div class="study-app">
+      <div class="study-layout" id="studyLayout">
+        <aside class="book-sidebar" id="bookSidebar">
+          <div class="sidebar-heading">
+            <div class="sidebar-title">
+              <span class="sidebar-kicker">BÍBLIA</span>
+              <strong>Livros</strong>
+            </div>
+            <button
+              class="collapse-button"
+              id="collapseButton"
+              type="button"
+              aria-label="Minimizar menu de livros"
+              aria-expanded="true"
+            >
+              ‹
+            </button>
+          </div>
+          <nav class="book-navigation" id="bookList" aria-label="Livros da Bíblia"></nav>
+        </aside>
+
+        <button
+          class="sidebar-backdrop"
+          id="sidebarBackdrop"
+          type="button"
+          aria-label="Fechar menu de livros"
+        ></button>
+
+        <main class="chapter-workspace">
+          <header class="book-header">
+            <div>
+              <span class="testament-label" id="testamentLabel">ANTIGO TESTAMENTO</span>
+              <h1 id="bookTitle">Gênesis</h1>
+            </div>
+            <p id="bookSummary">Escolha um capítulo para adicionar uma marcação.</p>
+          </header>
+
+          <section
+            class="chapter-grid"
+            id="chapterGrid"
+            aria-label="Capítulos do livro selecionado"
+          ></section>
+        </main>
+
+        <aside class="notes-panel">
+          <header class="notes-heading">
+            <div>
+              <span class="notes-kicker">SEU ESTUDO</span>
+              <h2>Minhas marcações</h2>
+            </div>
+            <span class="notes-count" id="notesCount">0</span>
+          </header>
+
+          <div class="notes-legend" id="notesLegend" aria-label="Filtrar marcações">
+            <button class="legend-filter active" type="button" data-note-filter="all" aria-pressed="true">Todos</button>
+            <button class="legend-filter" type="button" data-note-filter="genealogy" aria-pressed="false"><i class="legend-dot genealogy"></i> Genealogia</button>
+            <button class="legend-filter" type="button" data-note-filter="fun" aria-pressed="false"><i class="legend-dot fun"></i> Divertido</button>
+            <button class="legend-filter" type="button" data-note-filter="debate" aria-pressed="false"><i class="legend-dot debate"></i> Debate</button>
+            <button class="legend-filter" type="button" data-note-filter="christ" aria-pressed="false"><i class="legend-dot christ"></i> Cristocentria</button>
+          </div>
+
+          <div class="notes-list" id="notesList"></div>
+        </aside>
+      </div>
+    </div>
+
+    <div class="modal-backdrop" id="markerModal" hidden>
+      <section
+        class="marker-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="markerDialogTitle"
+      >
+        <header class="dialog-heading">
+          <div>
+            <span class="dialog-kicker" id="dialogBookName">GÊNESIS</span>
+            <h2 id="markerDialogTitle">Capítulo 1</h2>
+          </div>
+          <button class="dialog-close" id="dialogClose" type="button" aria-label="Fechar">×</button>
+        </header>
+
+        <p class="dialog-instruction">Informe o versículo e escolha a categoria do acontecimento.</p>
+
+        <label class="dialog-verse-field">
+          <span>VERSÍCULO</span>
+          <div class="dialog-verse-control">
+            <strong id="dialogVersePrefix">Gn 1:</strong>
+            <input
+              id="dialogVerseInput"
+              type="text"
+              inputmode="numeric"
+              autocomplete="off"
+              placeholder="Ex.: 16 ou 16–18"
+              aria-describedby="dialogVerseError"
+            />
+          </div>
+          <small class="dialog-verse-error" id="dialogVerseError">Digite o número do versículo antes de adicionar.</small>
+        </label>
+
+        <div class="marker-options" id="markerOptions">
+          <button class="marker-option genealogy" type="button" data-marker="genealogy">
+            <span class="marker-color"></span>
+            <span><strong>Genealogia</strong><small>Famílias, gerações e descendências</small></span>
+            <span class="option-check">＋</span>
+          </button>
+          <button class="marker-option fun" type="button" data-marker="fun">
+            <span class="marker-color"></span>
+            <span><strong>Momento divertido</strong><small>Passagens leves, curiosas ou bem-humoradas</small></span>
+            <span class="option-check">＋</span>
+          </button>
+          <button class="marker-option debate" type="button" data-marker="debate">
+            <span class="marker-color"></span>
+            <span><strong>Dúvida ou debate</strong><small>Intrigas e pontos para estudar ou conversar</small></span>
+            <span class="option-check">＋</span>
+          </button>
+          <button class="marker-option christ" type="button" data-marker="christ">
+            <span class="marker-color"></span>
+            <span><strong>Cristocentria</strong><small>Referências, símbolos e conexões com Cristo</small></span>
+            <span class="option-check">＋</span>
+          </button>
+        </div>
+
+        <button class="dialog-done" id="dialogDone" type="button">Concluir</button>
+      </section>
+    </div>
+
+    <div class="app-toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="js/study.js"></script>
+  </body>
+</html>

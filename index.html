@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta
+      name="description"
+      content="Study of Truth: ferramentas visuais para estudo bíblico, genealogias e linhas do tempo."
+    />
+    <link rel="icon" type="image/png" sizes="any" href="imagens/favicon.png" />
+    <link rel="stylesheet" href="css/platform.css" />
+    <link rel="stylesheet" href="css/estilos.css" />
+    <title>study of truth</title>
+  </head>
+  <body>
+    <header class="site-header home-header">
+      <a class="site-brand" href="index.html" aria-label="Página inicial Study of Truth">
+        <img src="imagens/icon.png" alt="" />
+        <span>STUDY OF TRUTH</span>
+      </a>
+
+      <nav class="site-nav" aria-label="Aplicativos">
+        <a class="active" href="index.html">Início</a>
+        <a href="app-1.html">Leitura</a>
+        <a href="app-2.html">Bíblia</a>
+        <a href="app-3.html">Árvore</a>
+        <a href="app-4.html">Linha do tempo</a>
+      </nav>
+
+      <div class="site-actions backup-actions" aria-label="Backup dos dados">
+        <button class="pill-button hide-mobile" id="exportBackup" type="button">
+          Exportar
+        </button>
+        <button class="primary-button" id="importBackup" type="button">
+          Importar
+        </button>
+        <input id="backupFile" type="file" accept=".json,application/json" hidden />
+      </div>
+    </header>
+
+    <div class="announcement-strip">
+      <span class="announcement-mark" aria-hidden="true">✦</span>
+      Um espaço para ler, conectar pessoas e enxergar a história bíblica.
+    </div>
+
+    <main>
+      <section class="home-hero">
+        <div class="hero-copy">
+          <span class="eyebrow">Estudo visual</span>
+          <h1 class="display-title">
+            A verdade ganha<br />
+            <em>forma.</em>
+          </h1>
+          <p>
+            Reúna suas marcações, construa genealogias e compare vidas em uma
+            linha do tempo feita para o seu estudo.
+          </p>
+          <a class="primary-button hero-button" href="#aplicativos">
+            Explorar aplicativos
+            <span aria-hidden="true">↓</span>
+          </a>
+        </div>
+
+        <div class="hero-composition" aria-hidden="true">
+          <div class="hero-red-shape"></div>
+          <img class="hero-main-icon" src="imagens/icon.png" alt="" />
+          <img class="floating-icon first" src="imagens/tela-2.png" alt="" />
+          <img class="floating-icon second" src="imagens/tela-3.png" alt="" />
+          <span class="hero-cross">†</span>
+        </div>
+      </section>
+
+      <section class="apps-section" id="aplicativos" aria-labelledby="appsTitle">
+        <header class="section-heading">
+          <div>
+            <span class="eyebrow">Suas ferramentas</span>
+            <h2 class="display-title" id="appsTitle">Escolha como estudar.</h2>
+          </div>
+          <p>Quatro espaços conectados, cada um pensado para uma forma diferente de descoberta.</p>
+        </header>
+
+        <div class="feature-grid">
+          <a class="feature-card reading" href="app-1.html">
+            <img src="imagens/tela-1.png" alt="" />
+            <div class="feature-copy">
+              <span>Leitura</span>
+              <h3>Bíblia online</h3>
+            </div>
+            <span class="feature-arrow" aria-hidden="true">↗</span>
+          </a>
+
+          <a class="feature-card bible" href="app-2.html">
+            <img src="imagens/tela-2.png" alt="" />
+            <div class="feature-copy">
+              <span>Marcações</span>
+              <h3>Estudo da Bíblia</h3>
+            </div>
+            <span class="feature-arrow" aria-hidden="true">↗</span>
+          </a>
+
+          <a class="feature-card genealogy" href="app-3.html">
+            <img src="imagens/tela-3.png" alt="" />
+            <div class="feature-copy">
+              <span>Pessoas</span>
+              <h3>Árvore genealógica</h3>
+            </div>
+            <span class="feature-arrow" aria-hidden="true">↗</span>
+          </a>
+
+          <a class="feature-card timeline" href="app-4.html">
+            <img src="imagens/tela-4.png" alt="" />
+            <div class="feature-copy">
+              <span>História</span>
+              <h3>Linha do tempo</h3>
+            </div>
+            <span class="feature-arrow" aria-hidden="true">↗</span>
+          </a>
+        </div>
+
+        <p class="backup-status" id="backupStatus" role="status" aria-live="polite"></p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <a class="site-brand" href="index.html">
+        <img src="imagens/icon.png" alt="" />
+        <span>STUDY OF TRUTH</span>
+      </a>
+      <p>Estude. Conecte. Compreenda.</p>
+    </footer>
+
+    <div class="app-modal" id="importConfirm" hidden>
+      <section
+        class="form-dialog backup-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="importTitle"
+        aria-describedby="importDescription"
+      >
+        <header class="form-dialog-header">
+          <div>
+            <span class="eyebrow">Backup</span>
+            <h2 id="importTitle">Importar dados?</h2>
+          </div>
+          <button class="dialog-close" id="cancelImport" type="button" aria-label="Cancelar">×</button>
+        </header>
+        <div class="form-dialog-body">
+          <p id="importDescription"></p>
+          <div class="dialog-actions">
+            <button class="secondary-button" id="confirmImportCancel" type="button">Cancelar</button>
+            <button class="primary-button" id="confirmImport" type="button">Substituir dados</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <script src="js/backup.js"></script>
+  </body>
+</html>

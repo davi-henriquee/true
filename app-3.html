@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="description" content="Construa árvores genealógicas visuais para seus estudos." />
+    <link rel="icon" type="image/png" sizes="any" href="imagens/favicon.png" />
+    <link rel="stylesheet" href="css/platform.css" />
+    <link rel="stylesheet" href="css/visual-tools.css" />
+    <title>study of truth</title>
+  </head>
+  <body class="visual-tool-page">
+    <header class="site-header">
+      <a class="site-brand" href="index.html">
+        <img src="imagens/icon.png" alt="" />
+        <span>STUDY OF TRUTH</span>
+      </a>
+      <nav class="site-nav" aria-label="Aplicativos">
+        <a href="index.html">Início</a>
+        <a href="app-1.html">Leitura</a>
+        <a href="app-2.html">Bíblia</a>
+        <a class="active" href="app-3.html">Árvore</a>
+        <a href="app-4.html">Linha do tempo</a>
+      </nav>
+      <div class="site-actions">
+        <a class="icon-button" href="index.html" aria-label="Início">⌂</a>
+      </div>
+    </header>
+
+    <div class="announcement-strip tool-strip">
+      <span class="announcement-mark" aria-hidden="true">✦</span>
+      Clique em uma pessoa para revelar as opções de cônjuge, filhos e edição.
+    </div>
+
+    <main class="genealogy-shell">
+      <aside class="tool-intro-panel">
+        <span class="eyebrow">Genealogias</span>
+        <h1 class="display-title">Construa os vínculos.</h1>
+        <p>
+          Comece pela pessoa central e expanda a família. Cada retrato guarda um
+          nome, uma imagem e suas observações.
+        </p>
+
+        <div class="tool-stat-card">
+          <span>Pessoas na árvore</span>
+          <strong id="personCount">1</strong>
+        </div>
+
+        <div class="tool-legend">
+          <div><i class="legend-line spouse"></i><span>Linha rosa: cônjuges</span></div>
+          <div><i class="legend-line child"></i><span>Linha escura: descendentes</span></div>
+        </div>
+
+        <button class="secondary-button reset-tree-button" id="resetTreeButton" type="button">
+          Recomeçar árvore
+        </button>
+      </aside>
+
+      <section class="tree-stage" aria-labelledby="treeTitle">
+        <header class="stage-toolbar">
+          <div>
+            <span class="stage-kicker">MAPA FAMILIAR</span>
+            <h2 id="treeTitle">Árvore principal</h2>
+          </div>
+          <div class="zoom-controls" aria-label="Zoom da árvore">
+            <button class="icon-button" id="zoomOut" type="button" aria-label="Diminuir zoom">−</button>
+            <button class="zoom-value" id="zoomReset" type="button">100%</button>
+            <button class="icon-button" id="zoomIn" type="button" aria-label="Aumentar zoom">＋</button>
+          </div>
+        </header>
+
+        <div class="tree-viewport" id="treeViewport">
+          <div class="tree-board" id="treeBoard"></div>
+        </div>
+      </section>
+    </main>
+
+    <div class="app-modal" id="personModal" hidden>
+      <section class="form-dialog" role="dialog" aria-modal="true" aria-labelledby="personModalTitle">
+        <header class="form-dialog-header">
+          <div>
+            <span class="eyebrow" id="personModalKicker">Pessoa</span>
+            <h2 id="personModalTitle">Editar pessoa</h2>
+          </div>
+          <button class="dialog-close" id="closePersonModal" type="button" aria-label="Fechar">×</button>
+        </header>
+        <form class="form-dialog-body" id="personForm">
+          <input id="personId" type="hidden" />
+          <label class="file-picker">
+            <input id="personPhoto" type="file" accept="image/*" />
+            <span class="file-preview" id="personPhotoPreview">P</span>
+            <span>
+              <strong>Escolher uma foto</strong>
+              <small>Ela será recortada em formato circular.</small>
+            </span>
+          </label>
+
+          <label class="field-label">
+            <span>Nome</span>
+            <input class="text-field" id="personName" type="text" maxlength="80" required placeholder="Nome da pessoa" />
+          </label>
+
+          <label class="field-label">
+            <span>Observação</span>
+            <textarea class="textarea-field" id="personNotes" maxlength="600" placeholder="Escreva informações, referências ou detalhes importantes..."></textarea>
+          </label>
+
+          <label class="import-toggle" id="timelineImportOption">
+            <input id="importToTimeline" type="checkbox" />
+            <span>
+              <strong>Importar para Linha do Tempo?</strong>
+              <small>A pessoa será criada no acervo com a mesma foto; depois você poderá completar as datas.</small>
+            </span>
+          </label>
+
+          <div class="dialog-actions">
+            <button class="secondary-button" id="cancelPersonEdit" type="button">Cancelar</button>
+            <button class="primary-button" type="submit">Salvar pessoa</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div class="app-modal" id="resetTreeModal" hidden>
+      <section class="form-dialog compact-dialog" role="dialog" aria-modal="true" aria-labelledby="resetTreeTitle">
+        <header class="form-dialog-header">
+          <div>
+            <span class="eyebrow">Nova árvore</span>
+            <h2 id="resetTreeTitle">Recomeçar do início?</h2>
+          </div>
+        </header>
+        <div class="form-dialog-body">
+          <p class="dialog-description">Todas as pessoas e relações desta árvore serão removidas.</p>
+          <div class="dialog-actions">
+            <button class="secondary-button" id="cancelResetTree" type="button">Cancelar</button>
+            <button class="primary-button" id="confirmResetTree" type="button">Recomeçar</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="app-toast" id="genealogyToast" role="status" aria-live="polite"></div>
+    <script src="js/genealogy.js"></script>
+  </body>
+</html>

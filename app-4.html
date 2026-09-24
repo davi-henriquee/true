@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="description" content="Compare pessoas em uma linha do tempo centrada em Cristo." />
+    <link rel="icon" type="image/png" sizes="any" href="imagens/favicon.png" />
+    <link rel="stylesheet" href="css/platform.css" />
+    <link rel="stylesheet" href="css/visual-tools.css" />
+    <title>study of truth</title>
+  </head>
+  <body class="visual-tool-page">
+    <header class="site-header">
+      <a class="site-brand" href="index.html">
+        <img src="imagens/icon.png" alt="" />
+        <span>STUDY OF TRUTH</span>
+      </a>
+      <nav class="site-nav" aria-label="Aplicativos">
+        <a href="index.html">Início</a>
+        <a href="app-1.html">Leitura</a>
+        <a href="app-2.html">Bíblia</a>
+        <a href="app-3.html">Árvore</a>
+        <a class="active" href="app-4.html">Linha do tempo</a>
+      </nav>
+      <div class="site-actions">
+        <a class="icon-button" href="index.html" aria-label="Início">⌂</a>
+      </div>
+    </header>
+
+    <div class="announcement-strip tool-strip">
+      <span class="announcement-mark" aria-hidden="true">✦</span>
+      Selecione até dez pessoas e compare suas vidas ao redor do ano de Cristo.
+    </div>
+
+    <main class="timeline-shell">
+      <aside class="timeline-sidebar">
+        <header class="directory-heading">
+          <div>
+            <span class="stage-kicker">ACERVO</span>
+            <h1>Pessoas</h1>
+          </div>
+          <span class="selection-badge"><strong id="selectedCount">0</strong>/10</span>
+        </header>
+
+        <div class="directory-actions">
+          <button class="primary-button" id="addTimelinePerson" type="button">＋ Pessoa</button>
+          <button class="secondary-button" id="addTimelineGroup" type="button">＋ Grupo</button>
+        </div>
+
+        <div class="directory-scroll" id="timelineDirectory"></div>
+      </aside>
+
+      <section class="timeline-workspace" aria-labelledby="timelineTitle">
+        <header class="timeline-heading">
+          <div>
+            <span class="eyebrow">História comparada</span>
+            <h2 class="display-title" id="timelineTitle">A história ao redor da cruz.</h2>
+          </div>
+          <p id="timelineSummary">Adicione pessoas no menu e marque as caixas para compará-las.</p>
+        </header>
+
+        <div class="timeline-viewport" id="timelineViewport">
+          <div class="timeline-board" id="timelineBoard"></div>
+        </div>
+      </section>
+    </main>
+
+    <div class="app-modal" id="timelinePersonModal" hidden>
+      <section class="form-dialog" role="dialog" aria-modal="true" aria-labelledby="timelinePersonTitle">
+        <header class="form-dialog-header">
+          <div>
+            <span class="eyebrow">Pessoa histórica</span>
+            <h2 id="timelinePersonTitle">Adicionar pessoa</h2>
+          </div>
+          <button class="dialog-close" id="closeTimelinePerson" type="button" aria-label="Fechar">×</button>
+        </header>
+        <form class="form-dialog-body" id="timelinePersonForm">
+          <input id="timelinePersonId" type="hidden" />
+          <label class="file-picker">
+            <input id="timelinePersonPhoto" type="file" accept="image/*" />
+            <span class="file-preview" id="timelinePhotoPreview">P</span>
+            <span><strong>Escolher uma foto</strong><small>Opcional. Ela aparecerá junto à vida da pessoa.</small></span>
+          </label>
+
+          <label class="field-label">
+            <span>Nome</span>
+            <input class="text-field" id="timelinePersonName" type="text" maxlength="80" required placeholder="Ex.: Abraão" />
+          </label>
+
+          <div class="form-grid-two">
+            <label class="field-label">
+              <span>Ano de nascimento</span>
+              <input class="text-field" id="timelineBirth" type="number" required placeholder="Use negativo para a.C." />
+            </label>
+            <label class="field-label">
+              <span>Ano de falecimento</span>
+              <input class="text-field" id="timelineDeath" type="number" required placeholder="Ex.: -1800 ou 70" />
+            </label>
+          </div>
+
+          <div class="form-grid-two">
+            <label class="field-label">
+              <span>Grupo</span>
+              <select class="select-field" id="timelinePersonGroup">
+                <option value="">Sem grupo</option>
+              </select>
+            </label>
+            <label class="field-label">
+              <span>Cor individual (opcional)</span>
+              <span class="color-field">
+                <input id="timelineColorPicker" type="color" value="#ff3d4d" aria-label="Escolher cor" />
+                <input class="text-field" id="timelineColorHex" type="text" maxlength="7" placeholder="#FF3D4D" />
+                <button class="clear-color" id="clearTimelineColor" type="button" aria-label="Remover cor">×</button>
+              </span>
+            </label>
+          </div>
+
+          <p class="form-help">Anos anteriores a Cristo devem ser digitados como números negativos.</p>
+          <div class="dialog-actions">
+            <button class="secondary-button" id="cancelTimelinePerson" type="button">Cancelar</button>
+            <button class="primary-button" type="submit">Salvar pessoa</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div class="app-modal" id="timelineGroupModal" hidden>
+      <section class="form-dialog compact-dialog" role="dialog" aria-modal="true" aria-labelledby="timelineGroupTitle">
+        <header class="form-dialog-header">
+          <div>
+            <span class="eyebrow">Pasta de pessoas</span>
+            <h2 id="timelineGroupTitle">Adicionar grupo</h2>
+          </div>
+          <button class="dialog-close" id="closeTimelineGroup" type="button" aria-label="Fechar">×</button>
+        </header>
+        <form class="form-dialog-body" id="timelineGroupForm">
+          <input id="timelineGroupId" type="hidden" />
+          <label class="field-label">
+            <span>Nome do grupo</span>
+            <input class="text-field" id="timelineGroupName" type="text" maxlength="60" required placeholder="Ex.: Patriarcas" />
+          </label>
+          <label class="field-label">
+            <span>Cor do grupo</span>
+            <span class="color-field">
+              <input id="timelineGroupPicker" type="color" value="#ff3d4d" aria-label="Escolher cor do grupo" />
+              <input class="text-field" id="timelineGroupHex" type="text" maxlength="7" value="#FF3D4D" required />
+            </span>
+          </label>
+          <div class="dialog-actions">
+            <button class="secondary-button" id="cancelTimelineGroup" type="button">Cancelar</button>
+            <button class="primary-button" type="submit">Salvar grupo</button>
+          </div>
+        </form>
+      </section>
+    </div>
+
+    <div class="app-toast" id="timelineToast" role="status" aria-live="polite"></div>
+    <script src="js/timeline.js"></script>
+  </body>
+</html>

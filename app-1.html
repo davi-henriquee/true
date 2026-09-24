@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#ffffff" />
+    <link rel="icon" type="image/png" sizes="any" href="imagens/favicon.png" />
+    <link rel="stylesheet" href="css/platform.css" />
+    <link rel="stylesheet" href="css/estilos.css" />
+    <title>study of truth</title>
+  </head>
+  <body class="reader-page">
+    <header class="site-header">
+      <a class="site-brand" href="index.html">
+        <img src="imagens/icon.png" alt="" />
+        <span>STUDY OF TRUTH</span>
+      </a>
+      <nav class="site-nav" aria-label="Aplicativos">
+        <a href="index.html">Início</a>
+        <a class="active" href="app-1.html">Leitura</a>
+        <a href="app-2.html">Bíblia</a>
+        <a href="app-3.html">Árvore</a>
+        <a href="app-4.html">Linha do tempo</a>
+      </nav>
+      <div class="site-actions">
+        <a
+          class="secondary-button reader-external-header"
+          href="https://www.bible.com/pt/bible"
+          target="_blank"
+          rel="noopener noreferrer"
+        >Abrir no Bible.com ↗</a>
+        <a class="icon-button" href="index.html" aria-label="Início">⌂</a>
+      </div>
+    </header>
+
+    <div class="announcement-strip reader-strip">
+      <span class="announcement-mark" aria-hidden="true">✦</span>
+      Leia diretamente pelo Bible.com sem sair do Study of Truth.
+    </div>
+
+    <main class="reader-shell">
+      <header class="reader-toolbar">
+        <div>
+          <span class="eyebrow">Leitura bíblica</span>
+          <h1>Bíblia online</h1>
+        </div>
+        <div class="reader-source">
+          <span>Conteúdo fornecido por</span>
+          <strong>Bible.com · YouVersion</strong>
+        </div>
+      </header>
+
+      <div class="reader-frame-wrap">
+        <div class="reader-account-notice">
+          <span><strong>Quer acessar sua conta?</strong> O login da YouVersion precisa abrir fora da incorporação.</span>
+          <a
+            href="https://login.youversion.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Entrar em nova aba ↗</a>
+        </div>
+        <iframe
+          class="reader-frame"
+          src="https://www.bible.com/pt/bible"
+          title="Bíblia online no Bible.com"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allow="clipboard-write; fullscreen"
+        ></iframe>
+        <div class="reader-fallback">
+          <strong>Não conseguiu visualizar?</strong>
+          <span>Alguns navegadores ou serviços de hospedagem podem bloquear páginas externas.</span>
+          <a
+            class="primary-button"
+            href="https://www.bible.com/pt/bible"
+            target="_blank"
+            rel="noopener noreferrer"
+          >Abrir no Bible.com ↗</a>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
